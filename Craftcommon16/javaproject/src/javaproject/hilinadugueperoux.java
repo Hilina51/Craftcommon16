@@ -33,7 +33,13 @@ public class hilinadugueperoux {
 
 		double studentTotalSalary=hilina.nextDouble();
 
-
+		System.out.println("Student first name:"+ " " + studentfirstName);
+	    System.out.println("Student last name:"+ " " + StudentlastName);
+	    System.out.println ("Student Age:" + studentage);
+	    System.out.println("Student Salary:" + studentSalary);
+	    System.out.println("Student bonus:" + studentBonus);
+	    System.out.println("Student total Salary:" + "" +studentSalary + studentBonus);
+	    
 
 				
 
