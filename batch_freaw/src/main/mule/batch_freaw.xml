@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="14f741d4-3aa5-48fc-a363-ce20319fe818" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="batch_freawFlow" doc:id="98ce41dd-33c3-4237-8d57-12b9ab5baa52" >
+		<http:listener doc:name="Listener" doc:id="4f1fc080-c9e3-498b-b41e-4bc7b92e5fc9" config-ref="HTTP_Listener_config" path="/batch"/>
+		<set-payload value='#[[1,2,3,4,"AA","BB"]]' doc:name="[1,2,3,4]" doc:id="a1c8f664-ac2e-474c-8211-e5ba73db3aa8" />
+		<set-variable value='"variable before batch job"' doc:name="Set Variable" doc:id="d16de86e-b87b-4153-bfd3-baaa8d8b2130" variableName="varName"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8b035213-49b2-4d3f-8a9e-f5385076368f" message="#[vars.varName]" category="PRINT VARIABLE BEFORE BATCH"/>
+		<batch:job jobName="batch_freawBatch_Job" doc:id="bdfc0e23-48fe-4000-a804-62ed2e44b7b3" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="a926d861-b635-43a8-9638-8879009fb335" acceptExpression="isInteger(payload)">
+					<logger level="INFO" doc:name="Logger" doc:id="ef68725f-f0db-4d4f-9c4e-0d54c252c6f1" message="#[payload]" category="PRINT RECORD NUMBER"/>
+					<choice doc:name="Choice" doc:id="fb83624e-b6ec-43cd-93da-d1afb6f94823">
+						<when expression="#[payload == 1]">
+							<set-variable value='"hello"' doc:name="Set Variable" doc:id="8a85a6ca-3f4d-49eb-bdd0-621dc7d13eb3" variableName="varName"/>
+							<logger level="INFO" doc:name="Logger" doc:id="2f005cbf-2687-4105-bc30-d4f7f9b39402" message="#[vars.varName]" category="R1: Print variable for payload is 1"/>
+						</when>
+						<when expression="#[payload == 2]">
+							<set-variable value='"world"' doc:name="Set Variable" doc:id="462af21c-64eb-4e5f-99db-2ae7fe66ea6f" variableName="varName"/>
+							<logger level="INFO" doc:name="Logger" doc:id="992ee9d1-56ed-418f-b95a-148b77f76fc3" message="#[vars.varName]" category="R2:Print value for payload2"/>
+						</when>
+						<when expression="#[payload == 3]">
+							<logger level="INFO" doc:name="Logger" doc:id="214facf9-f85c-433b-bbc1-3936f4b5aa7e" message="#[vars.varName]" category="R3:Print variable for payload3"/>
+						</when>
+						<otherwise >
+							<set-variable value='"other value"' doc:name="Set Variable" doc:id="bd4a9317-ab36-4037-b6ae-8331fe219c2b" variableName="varName"/>
+							<logger level="INFO" doc:name="Logger" doc:id="060086f3-8def-45e0-9fc9-c09159ed5171" message="#[vars.varName]" category="R4: Print other values"/>
+						</otherwise>
+					</choice>
+				</batch:step>
+				<batch:step name="Batch_Step2" doc:id="f95b5cc3-3923-4c53-8a44-2100df8783d3" acceptExpression="isInteger(payload)">
+					<logger level="INFO" doc:name="Logger" doc:id="0aa21156-b9ed-4bf9-b60a-b1bc03edd991" message='#[("payload" ++ payload as String) : vars.varName]' category="Print Variables in second step"/>
+				</batch:step>
+				<batch:step name="Batch_Step3" doc:id="6f996a3e-ac92-47f3-b2d9-53e9d900a34e" acceptPolicy="ONLY_FAILURES">
+					<logger level="INFO" doc:name="Logger" doc:id="950a7e77-027a-4d4f-936e-dc1d4edac43b" message='#[payload is String]'/>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+		<logger level="INFO" doc:name="Logger" doc:id="963a1648-b28a-45e6-93fe-e75a251cdd06" message="#[vars.varName]" category="print variables after the batch job"/>
+	</flow>
+</mule>
